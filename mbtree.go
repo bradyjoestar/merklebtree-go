@@ -34,6 +34,7 @@ type KeyVersion struct {
 }
 
 func NewMBTree() *MerkleBtree {
-	btree := MerkleBtree{}
+
+	btree := MerkleBtree{hashmap: make(map[string]int64),Root:Root{Hash:nil}}
 	return &btree
 }
