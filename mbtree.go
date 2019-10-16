@@ -3,7 +3,6 @@ package merklebtree_go
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 )
 
 type MerkleBtree struct {
@@ -12,12 +11,11 @@ type MerkleBtree struct {
 }
 
 type Root struct {
-	Hash []byte
+	Hash string
 }
 
-func (mbtree *MerkleBtree) BuildWithKeyValue(kv KeyVersion) {
+func (mbtree *MerkleBtree) ComputeHash(){
 	var s string
-	mbtree.hashmap[kv.Key] = kv.Version
 	for key, _ := range mbtree.hashmap {
 		signByte := []byte(key)
 		hash := md5.New()
@@ -27,10 +25,17 @@ func (mbtree *MerkleBtree) BuildWithKeyValue(kv KeyVersion) {
 	signByte := []byte(s)
 	hash := md5.New()
 	hash.Write(signByte)
+	mbtree.Hash = hex.EncodeToString(hash.Sum(nil))
+}
+
+func (mbtree *MerkleBtree) BuildWithKeyValue(kv KeyVersion) {
+	mbtree.hashmap[kv.Key] = kv.Version
+	mbtree.ComputeHash()
 }
 
 func (mbtree *MerkleBtree) Delete(key string) {
 	delete(mbtree.hashmap, key)
+	mbtree.ComputeHash()
 }
 
 func (mbtree *MerkleBtree) Serach(key string) SearchResult {
@@ -50,6 +55,6 @@ type KeyVersion struct {
 }
 
 func NewMBTree() *MerkleBtree {
-	btree := MerkleBtree{hashmap: make(map[string]int64), Root: Root{Hash: nil}}
+	btree := MerkleBtree{hashmap: make(map[string]int64), Root: Root{Hash: ""}}
 	return &btree
 }
